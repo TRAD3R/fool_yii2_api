@@ -4,7 +4,7 @@ namespace app\modules\api;
 
 use yii\base\Module;
 
-class API extends Module
+class Api extends Module
 {
     public function init()
     {

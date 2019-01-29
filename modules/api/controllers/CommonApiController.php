@@ -8,12 +8,12 @@
  * Time: 8:43
  */
 
-namespace app\controllers;
+namespace app\modules\api\controllers;
 
 use yii\rest\Controller;
 class CommonApiController extends Controller
 {
     public $status = false;     // status for Rest
     public $data = [];          // return data
-    public $errorDB = '';       // DB error
+    public $error = '';       //  error
 }

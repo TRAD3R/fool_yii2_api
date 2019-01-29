@@ -10,7 +10,7 @@ use yii\web\IdentityInterface;
  *
  * @property int $id
  * @property string $email
- * @property string $password
+ * @property string $pass_hash
  * @property string $auth_key
  */
 class User extends ActiveRecord implements IdentityInterface
@@ -31,8 +31,8 @@ class User extends ActiveRecord implements IdentityInterface
   public function rules()
   {
     return [
-      [['email', 'password'], 'required'],
-      [['auth_key'], 'string', 'max' => 20],
+      [['email', 'pass_hash'], 'required'],
+      [['auth_key'], 'string', 'max' => 100],
     ];
   }
 
@@ -44,7 +44,7 @@ class User extends ActiveRecord implements IdentityInterface
     return [
       'id' => 'ID',
       'email' => 'Email',
-      'password' => 'Password',
+      'pass_hash' => 'Password',
       'auth_key' => 'Authorization Key',
     ];
   }
@@ -58,17 +58,6 @@ class User extends ActiveRecord implements IdentityInterface
   public static function findIdentity($id)
   {
     return static::findOne($id);
-  }
-
-  /**
-   * Finds user by username
-   *
-   * @param string $username
-   * @return static|null
-   */
-  public static function findByUsername($username)
-  {
-    return static::findOne(["email" => $username]);
   }
 
   /**
@@ -127,7 +116,7 @@ class User extends ActiveRecord implements IdentityInterface
    */
   public function generateAuthKey()
   {
-    return $this->auth_key = \Yii::$app->security->generateRandomString(20);
+    $this->auth_key = \Yii::$app->security->generateRandomString(100);
   }
 
   /**
@@ -139,6 +128,15 @@ class User extends ActiveRecord implements IdentityInterface
 //        return $this->getAuthKey() === $authKey;
   }
 
+    /**
+     * Generate auth key for new user
+     * @throws \yii\base\Exception
+     */
+    public function generatePassHash($password)
+    {
+        $this->pass_hash = \Yii::$app->security->generatePasswordHash($password);
+    }
+
   /**
    * Validates password
    *
@@ -147,6 +145,6 @@ class User extends ActiveRecord implements IdentityInterface
    */
   public function validatePassword($password)
   {
-    return \Yii::$app->security->validatePassword($password,$this->password);
+    return \Yii::$app->security->validatePassword($password,$this->pass_hash);
   }
 }
