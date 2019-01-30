@@ -25,7 +25,9 @@ class HandlerController extends CommonApiController
                 }else{
                     return $this->run("user/signin", ["authKey" => $post['email']]);
                 }
-
+                break;
+            case "tableList":
+                return $this->run("table/list", ["authKey" => $post["authKey"]]);
                 break;
             default:
                 return [
