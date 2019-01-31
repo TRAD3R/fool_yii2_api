@@ -27,4 +27,14 @@ class Game extends ActiveRecord
   public static function findById($id){
     return static::findOne($id);
   }
+
+    /**
+     * @param $tableId
+     * @return int
+     */
+  public static function getPlayersInGame($tableId){
+      return (int)static::find()
+          ->where(["table_id" => $tableId])
+          ->count();
+  }
 } // Game

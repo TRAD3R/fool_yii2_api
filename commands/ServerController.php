@@ -27,6 +27,7 @@ class ServerController extends Controller
       }
 
       $server->on(WebSocketServer::EVENT_CLIENT_CONNECTED, function($c) use ($_clients){
+
           echo "New client ({$c->client->resourceId}) connected".PHP_EOL;
           $_clients[$c->client->resourceId] = $c->client;
       });

@@ -32,6 +32,9 @@ class HandlerController extends CommonApiController
             case "tableCreate":
                 return $this->run("table/create", ["authKey" => $post["authKey"], "playersLimit" => max(0, (int)$post["playersLimit"])]);
                 break;
+            case "tableSitDown":
+                return $this->run("table/sit-down", ["authKey" => $post["authKey"], "tableId" => (int)$post["table_id"]]);
+                break;
 
             default:
                 return [

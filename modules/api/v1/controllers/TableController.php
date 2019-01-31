@@ -91,4 +91,41 @@ class TableController extends CommonApiController
             "error"  => $this->error
         ];
     } // actionCreate
+
+    public function actionSitDown($authKey, $tableId){
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $user = User::findByAuthKey($authKey);
+        if($user){
+            $table = Table::findById($tableId);
+
+            if($table){
+                $playersCount =Game::getPlayersInGame($table->id);
+                if($playersCount < $table->limit_players) {
+                    $game = new Game();
+                    $game->table_id = $table->id;
+                    $game->user_id = $user->id;
+
+                    if($game->save()){
+                        $this->status = true;
+                    }else{
+                        $this->error = "Error addition user at the table";
+                    }
+                }else{
+                    $this->error = "Exceeded player limit at the table";
+                }
+            }else{
+                $this->error = 'Table not found';
+            }
+
+        }else{
+            $this->error = "User not found";
+        }
+
+        return [
+            "status" => $this->status,
+            "data"   => $this->data,
+            "error"  => $this->error
+        ];
+    } // actionSitDown
 } // TableController
