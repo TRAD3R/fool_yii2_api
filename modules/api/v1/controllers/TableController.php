@@ -9,13 +9,21 @@
 namespace app\modules\api\v1\controllers;
 
 
+use app\models\Game;
 use app\models\Table;
+use app\models\User;
 use app\modules\api\controllers\CommonApiController;
 use Yii;
 use yii\web\Response;
 
 class TableController extends CommonApiController
 {
+    const MAX_PLAYERS = 6;
+
+    /**
+     * Return table list
+     * @return array
+     */
     public function actionList(){
         Yii::$app->response->format = Response::FORMAT_JSON;
 
@@ -40,4 +48,47 @@ class TableController extends CommonApiController
             "error"  => $this->error
         ];
     } // actionList
-}
+
+    /**
+     * Creating new table
+     * @param $authKey string
+     * @param $pLayersLimit integer
+     * @return array
+     * @throws \Throwable
+     * @throws \yii\db\StaleObjectException
+     */
+    public function actionCreate($authKey, $playersLimit){
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $user = User::findByAuthKey($authKey);
+        if($user){
+            $table = new Table();
+            $table->limit_players = min($playersLimit, self::MAX_PLAYERS);
+
+            if($table->save()){
+                $game = new Game();
+                $game->table_id = $table->id;
+                $game->user_id = $user->id;
+
+                if($game->save()){
+                    $this->status = true;
+                }else{
+                    $table->delete();
+                    $this->error = "Error addition user at the table";
+                }
+
+            }else{
+                $this->error = 'Error creating the table';
+            }
+
+        }else{
+            $this->error = "User not found";
+        }
+
+        return [
+            "status" => $this->status,
+            "data"   => $this->data,
+            "error"  => $this->error
+        ];
+    } // actionCreate
+} // TableController

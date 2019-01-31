@@ -13,19 +13,29 @@ use yii\db\ActiveRecord;
  */
 class Table extends ActiveRecord
 {
-  /**
-   * @return string
-   */
-  public static function tableName()
-  {
+    /**
+    * @return string
+    */
+    public static function tableName()
+    {
     return "tables";
-  } // tableName
+    } // tableName
 
-  /**
-   * @param $id
-   * @return null|object
-   */
-  public static function findById($id){
+    /**
+    * @param $id
+    * @return null|object
+    */
+    public static function findById($id){
     return static::findOne($id);
-  } // findById
+    } // findById
+
+    public function beforeSave($insert)
+    {
+        if (!parent::beforeSave($insert)) {
+            return false;
+        }
+
+        $this->created = time();
+        return true;
+    }
 } // Table

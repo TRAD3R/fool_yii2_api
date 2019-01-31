@@ -29,6 +29,10 @@ class HandlerController extends CommonApiController
             case "tableList":
                 return $this->run("table/list", ["authKey" => $post["authKey"]]);
                 break;
+            case "tableCreate":
+                return $this->run("table/create", ["authKey" => $post["authKey"], "playersLimit" => max(0, (int)$post["playersLimit"])]);
+                break;
+
             default:
                 return [
                     $this->status = false,
@@ -36,4 +40,4 @@ class HandlerController extends CommonApiController
                 ];
         }
     } // actionRequest
-}
+} // HandlerController

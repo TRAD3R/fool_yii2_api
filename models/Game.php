@@ -3,6 +3,13 @@ namespace app\models;
 
 use yii\db\ActiveRecord;
 
+/**
+ * This is the model class for table "games".
+ *
+ * @property int $id
+ * @property int $table_id
+ * @property int $user_id
+ */
 class Game extends ActiveRecord
 {
   /**
@@ -20,4 +27,4 @@ class Game extends ActiveRecord
   public static function findById($id){
     return static::findOne($id);
   }
-}
+} // Game
