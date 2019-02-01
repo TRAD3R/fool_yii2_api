@@ -50,14 +50,14 @@ class TableController extends CommonApiController
     } // actionList
 
     /**
-     * Creating new table
+     * Adding new table
      * @param $authKey string
      * @param $pLayersLimit integer
      * @return array
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionCreate($authKey, $playersLimit){
+    public function actionAdd($authKey, $playersLimit){
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $user = User::findByAuthKey($authKey);
@@ -90,7 +90,7 @@ class TableController extends CommonApiController
             "data"   => $this->data,
             "error"  => $this->error
         ];
-    } // actionCreate
+    } // actionAdd
 
     public function actionSitDown($authKey, $tableId){
         Yii::$app->response->format = Response::FORMAT_JSON;
