@@ -17,35 +17,72 @@ use Yii;
 
 class ServerController extends Controller
 {
-  public function actionStart($port = null)
-  {
-      $_clients = [];
-      $server = new EchoServer();
-      $server->port = 8585;
-      if ($port) {
-          $server->port = $port;
-      }
+    private $forClients = [];
+    private $query = '';
 
-      $server->on(WebSocketServer::EVENT_CLIENT_CONNECTED, function($c) use ($_clients){
+    public function actionStart($port = null){
+        $_clients = [];
+        $server = new EchoServer();
+        $server->port = 8585;
+        if ($port) {
+            $server->port = $port;
+        }
+        // Connected new client
+        $server->on(WebSocketServer::EVENT_CLIENT_CONNECTED, function($c) use ($_clients){
 
-          echo "New client ({$c->client->resourceId}) connected".PHP_EOL;
-          $_clients[$c->client->resourceId] = $c->client;
-      });
+            echo "New client ({$c->client->resourceId}) connected".PHP_EOL;
+            $_clients[$c->client->resourceId] = $c->client;
+        });
 
-      $server->on(WebSocketServer::EVENT_CLIENT_DISCONNECTED, function($c) use ($_clients){
-          echo "Client ({$c->client->resourceId}) disconnected".PHP_EOL;
-          unset($_clients[$c->client->resourceId]);
-      });
+        // Disconnected client
+        $server->on(WebSocketServer::EVENT_CLIENT_DISCONNECTED, function($c) use ($_clients){
+            echo "Client ({$c->client->resourceId}) disconnected".PHP_EOL;
+            unset($_clients[$c->client->resourceId]);
+        });
 
-      $server->on(WebSocketServer::EVENT_CLIENT_MESSAGE, function(WSClientMessageEvent $e) use ($_clients){
-          $request = json_decode($e->message);
-          var_dump($request);
-          $user = User::find()->all();
-          $user->id = "12345";
-          $result = Yii::$app->runAction($request->request, $request);
+        // get new message
+        $server->on(WebSocketServer::EVENT_CLIENT_MESSAGE, function(WSClientMessageEvent $e) use ($_clients){
+            $request = json_decode($e->message);
 
-          $e->client->send(json_encode(count($_clients)));
-      });
-      $server->start();
-  }
+            $result = json_decode($this->runAction("request", [
+                $request->request,
+                $e->client->resourceId,
+                $request->data
+            ]));
+
+            if($result->clients){
+                foreach ($_clients as $id => $client){
+                    if($result->clients == "all" || in_array($id, $result->clients))
+                        $client->send($result->query);
+                }
+            }
+        });
+
+        $server->start();
+    } // actionStart
+
+    public function actionRequest($request = null, $resourceId = null, $options = null){
+
+        switch ($request){
+            case "newConnection":
+                $user = User::findByAuthKey($options->authKey);
+
+                if($user){
+                    $user->resource_id = $resourceId;
+                    $user->save();
+
+                    $this->query = "table";
+                }
+
+                break;
+        }
+
+        return json_encode(
+            $result = [
+                "query" => $this->query,
+                "clients" => $this->forClients
+            ]
+        );
+
+    } // actionRequest
 }

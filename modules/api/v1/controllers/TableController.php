@@ -57,13 +57,13 @@ class TableController extends CommonApiController
      * @throws \Throwable
      * @throws \yii\db\StaleObjectException
      */
-    public function actionAdd($authKey, $playersLimit){
+    public function actionAdd($authKey, $playerLimit){
         Yii::$app->response->format = Response::FORMAT_JSON;
 
         $user = User::findByAuthKey($authKey);
         if($user){
             $table = new Table();
-            $table->limit_players = min($playersLimit, self::MAX_PLAYERS);
+            $table->limit_players = min($playerLimit, self::MAX_PLAYERS);
 
             if($table->save()){
                 $game = new Game();
