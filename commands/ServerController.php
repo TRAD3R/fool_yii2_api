@@ -43,11 +43,12 @@ class ServerController extends Controller
         // get new message
         $server->on(WebSocketServer::EVENT_CLIENT_MESSAGE, function(WSClientMessageEvent $e) use ($_clients){
             $request = json_decode($e->message);
+            $data = !empty($request->data) ? $request->data : "2";
 
             $result = json_decode($this->runAction("request", [
                 $request->request,
                 $e->client->resourceId,
-                $request->data
+                $data
             ]));
 
             if($result->clients){
@@ -74,6 +75,9 @@ class ServerController extends Controller
                     $this->query = "table";
                 }
 
+                break;
+            case "table":
+                $this->forClients = "all";
                 break;
         }
 
