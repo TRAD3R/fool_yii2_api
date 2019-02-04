@@ -1,8 +1,8 @@
 (function () {
   window.onload = function () {
     // var socket = new WebSocket("ws://echo.websocket.org");
-    var socket = new WebSocket('ws://test.exsales.net:8585');
-    // var socket = new WebSocket('ws://bang:8585');
+    // var socket = new WebSocket('ws://test.exsales.net:8585');
+    var socket = new WebSocket('ws://fool.trd:8585');
     var status = document.querySelector('#status');
 
     socket.onopen = function (ev) {

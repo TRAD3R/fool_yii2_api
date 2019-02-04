@@ -7,6 +7,7 @@
  */
 namespace app\modules\api\v1\controllers;
 
+use app\models\Game;
 use app\models\User;
 use app\models\UserAddForm;
 use app\modules\api\controllers\CommonApiController;
@@ -67,6 +68,8 @@ class UserController extends CommonApiController
 
         if($user){
             $this->status = true;
+            $inGame = Game::findBySql("SELECT t.id FROM games g JOIN tables t WHERE t.type > 0 AND user_id = $user->id")->one();
+            $this->data = (int)$inGame->id;
         }else{
             $this->error = "Not found auth key";
         } // if-else $user
