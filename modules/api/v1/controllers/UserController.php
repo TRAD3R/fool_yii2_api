@@ -34,7 +34,9 @@ class UserController extends CommonApiController
             if($user){
                 if($user->validatePassword($userForm->password)){
                     $this->status = true;
-                    $this->data = $user->auth_key;
+                    $inGame = Game::findBySql("SELECT t.id FROM games g JOIN `tables` t ON t.id = g.table_id WHERE t.type > 0 AND user_id = $user->id")->one();
+                    $table_id = $inGame ? (int)$inGame->id : 0;
+                    $this->data = ['auth_key' => $user->auth_key, 'table_id' => $table_id];
                 }else{
                     $this->error = "No correct email or password, or such e-mail has been isset!";
                 } // if-else $user->validatePassword
@@ -68,7 +70,7 @@ class UserController extends CommonApiController
 
         if($user){
             $this->status = true;
-            $inGame = Game::findBySql("SELECT t.id FROM games g JOIN tables t WHERE t.type > 0 AND user_id = $user->id")->one();
+            $inGame = Game::findBySql("SELECT t.id FROM games g JOIN tables t ON t.id = g.table_id WHERE t.type > 0 AND user_id = $user->id")->one();
             $this->data = (int)$inGame->id;
         }else{
             $this->error = "Not found auth key";
