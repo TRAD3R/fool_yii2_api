@@ -35,6 +35,9 @@ class HandlerController extends CommonApiController
             case "tableSitDown":
                 return $this->run("table/sit-down", ["authKey" => $post["authKey"], "tableId" => (int)$post["tableId"]]);
                 break;
+            case "gameExit":
+                return $this->run("game/exit", ["authKey" => $post["authKey"]]);
+                break;
 
             default:
                 return [
