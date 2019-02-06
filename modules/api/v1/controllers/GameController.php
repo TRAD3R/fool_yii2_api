@@ -121,7 +121,11 @@ class GameController extends CommonApiController
                         $this->error = "Error remove game or table";
                     }
                 }else{
-                    $this->status = true;
+                    if($game->delete()) {
+                        $this->status = true;
+                    }else{
+                        $this->error = "You can't leave the game";
+                    }
                 }
             }else{
                 $this->error = "User not in game";

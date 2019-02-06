@@ -37,6 +37,10 @@ class ServerController extends Controller
         // Disconnected client
         $server->on(WebSocketServer::EVENT_CLIENT_DISCONNECTED, function($c) use ($_clients){
             echo "Client ({$c->client->resourceId}) disconnected".PHP_EOL;
+            $this->runAction("request", [
+                "closeConnection",
+                $c->client->resourceId
+            ]);
             unset($_clients[$c->client->resourceId]);
         });
 
@@ -65,14 +69,23 @@ class ServerController extends Controller
     public function actionRequest($request = null, $resourceId = null, $options = null){
 
         switch ($request){
+            // save user resource_id
             case "newConnection":
                 $user = User::findByAuthKey($options->authKey);
 
                 if($user){
                     $user->resource_id = $resourceId;
                     $user->save();
+                }
 
-                    $this->query = "table";
+                break;
+            // remove user resource_id
+            case "closeConnection":
+                $user = User::findByResource($resourceId);
+
+                if($user){
+                    $user->resource_id = null;
+                    $user->save();
                 }
 
                 break;
