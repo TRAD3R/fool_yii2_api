@@ -19,33 +19,36 @@ class ServerController extends Controller
 {
     private $forClients = [];
     private $query = '';
+    private static $_clients = [];
 
+    /**
+     * @param null $port
+     */
     public function actionStart($port = null){
-        $_clients = [];
+//        $_clients = [];
         $server = new EchoServer();
         $server->port = 8585;
         if ($port) {
             $server->port = $port;
         }
         // Connected new client
-        $server->on(WebSocketServer::EVENT_CLIENT_CONNECTED, function($c) use ($_clients){
-
+        $server->on(WebSocketServer::EVENT_CLIENT_CONNECTED, function($c){
             echo "New client ({$c->client->resourceId}) connected".PHP_EOL;
-            $_clients[$c->client->resourceId] = $c->client;
+            self::$_clients[$c->client->resourceId] = $c->client;
         });
 
         // Disconnected client
-        $server->on(WebSocketServer::EVENT_CLIENT_DISCONNECTED, function($c) use ($_clients){
+        $server->on(WebSocketServer::EVENT_CLIENT_DISCONNECTED, function($c){
             echo "Client ({$c->client->resourceId}) disconnected".PHP_EOL;
             $this->runAction("request", [
                 "closeConnection",
                 $c->client->resourceId
             ]);
-            unset($_clients[$c->client->resourceId]);
+            unset(self::$_clients[$c->client->resourceId]);
         });
 
         // get new message
-        $server->on(WebSocketServer::EVENT_CLIENT_MESSAGE, function(WSClientMessageEvent $e) use ($_clients){
+        $server->on(WebSocketServer::EVENT_CLIENT_MESSAGE, function(WSClientMessageEvent $e){
             $request = json_decode($e->message);
             $data = !empty($request->data) ? $request->data : "2";
 
@@ -55,10 +58,13 @@ class ServerController extends Controller
                 $data
             ]));
 
+            // send all clients new query
             if($result->clients){
-                foreach ($_clients as $id => $client){
-                    if($result->clients == "all" || in_array($id, $result->clients))
+                foreach (self::$_clients as $id => $client){
+                    if($id != $e->client->resourceId) {
+                        if ($result->clients == "all" || in_array($id, $result->clients))
                         $client->send($result->query);
+                    }
                 }
             }
         });
@@ -91,6 +97,7 @@ class ServerController extends Controller
                 break;
             case "table":
                 $this->forClients = "all";
+                $this->query = "table";
                 break;
         }
 
