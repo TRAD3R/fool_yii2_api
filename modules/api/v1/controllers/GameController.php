@@ -51,6 +51,7 @@ class GameController extends CommonApiController
                             $table->type = 2;
                             if($table->save()){
                                 $this->status = true;
+                                $this->data = "gameStart";
                             }else{
                                 $this->error = "Error start game";
                             }

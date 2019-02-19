@@ -51,7 +51,7 @@ class ServerController extends Controller
         $server->on(WebSocketServer::EVENT_CLIENT_MESSAGE, function(WSClientMessageEvent $e){
             $request = json_decode($e->message);
             $data = !empty($request->data) ? $request->data : "2";
-
+//            var_dump($e->client->resourceId . ": " . $request->reuqest);
             $result = json_decode($this->runAction("request", [
                 $request->request,
                 $e->client->resourceId,
@@ -61,10 +61,8 @@ class ServerController extends Controller
             // send all clients new query
             if($result->clients){
                 foreach (self::$_clients as $id => $client){
-                    if($id != $e->client->resourceId) {
-                        if ($result->clients == "all" || in_array($id, $result->clients))
+                    if ($result->clients == "all" || in_array($id, $result->clients))
                         $client->send($result->query);
-                    }
                 }
             }
         });
@@ -82,6 +80,7 @@ class ServerController extends Controller
                 if($user){
                     $user->resource_id = $resourceId;
                     $user->save();
+                    echo "{$user->resource_id} => NewConnection";
                 }
 
                 break;
@@ -95,9 +94,16 @@ class ServerController extends Controller
                 }
 
                 break;
+            // update tableActivity
             case "table":
+                echo $resourceId . "=> table";
                 $this->forClients = "all";
                 $this->query = "table";
+                break;
+
+            // game has started
+            case "gameStart":
+                echo "{$resourceId}=>gameStart";
                 break;
         }
 
