@@ -50,8 +50,8 @@ class ServerController extends Controller
         // get new message
         $server->on(WebSocketServer::EVENT_CLIENT_MESSAGE, function(WSClientMessageEvent $e){
             $request = json_decode($e->message);
-            $data = !empty($request->data) ? $request->data : "2";
-//            var_dump($e->client->resourceId . ": " . $request->reuqest);
+            $data = $request->data ?? "2";
+
             $result = json_decode($this->runAction("request", [
                 $request->request,
                 $e->client->resourceId,
@@ -115,4 +115,4 @@ class ServerController extends Controller
         );
 
     } // actionRequest
-}
+} // ServerController
